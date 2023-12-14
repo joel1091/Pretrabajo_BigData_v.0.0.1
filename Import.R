@@ -1,19 +1,21 @@
 #Paquetes preliminares
 
+install.packages("downloader")
+install.packages("readxl")
 install.packages("pxR")
 library(pxR)
-install.packages("tidyverse")
 library(tidyverse)
 library(data.table)
 library(rlist)
 library(fs)
 library(curl)
 library(rio)
-install.packages("readxl")
 library(readxl)
-install.packages("downloader")
 library(downloader)
 library(writexl)
+
+
+
 
 #Creamos una carpeta para guardar los datos
 
@@ -33,6 +35,7 @@ IPV <- read.csv("data.csv")
 
 
 rm(list = ls()[!ls() %in% c("IPV")])
+write.csv(IPV,  file = "./docs/datos/ipv.csv")
 
 #Compra-venta de vivienda
 
@@ -58,7 +61,6 @@ compraventa_2004 <- compraventa_2004[1:nrow(cv), ]
 
 cv <- bind_cols(cv,compraventa_2004)
 
-unlink(archivos_a_borrar)
 
 cv <- cv %>%
   filter(row_number() %in% 6:72)
@@ -66,6 +68,7 @@ cv <- cv %>%
   filter(!row_number() %in% 2)
 
 rm(list = ls()[!ls() %in% c("IPV", "cv")])
+export(cv, file = "/docs/datos/cv.csv", format = ".csv")
 
 #Renta por edad y sexo
 

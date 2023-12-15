@@ -68,7 +68,7 @@ cv <- cv %>%
   filter(!row_number() %in% 2)
 
 rm(list = ls()[!ls() %in% c("IPV", "cv")])
-export(cv, file = "/docs/datos/cv.csv", format = ".csv")
+write.csv(cv,  file = "./docs/datos/cv.csv")
 
 #Renta por edad y sexo
 
@@ -79,6 +79,7 @@ aa <- read.px(url3)
 
 write.csv(aa, file = "data.csv", sep = ",")
 renta_edad <- read.csv("data.csv")
+write.csv(renta_edad, file = "./docs/datos/renta_edad.csv")
 
 rm(list = ls()[!ls() %in% c("IPV", "cv", "renta_edad")])
 
@@ -92,6 +93,7 @@ aa <- read.px(url4)
 
 write.csv(aa, file = "data.csv", sep = ",")
 renta_nacionalidad <- read.csv("data.csv")
+write.csv(renta_nacionalidad, file = "./docs/datos/renta_nacionalidad.csv")
 
 rm(list = ls()[!ls() %in% c("IPV", "cv", "renta_edad","renta_nacionalidad" )])
 
@@ -104,5 +106,9 @@ aa <- read.px(url4)
 
 write.csv(aa, file = "data.csv", sep = ",")
 vivienda_edad <- read.csv("data.csv")
+write.csv(vivienda_edad, file = "./docs/datos/vivienda_datos.csv")
 
 rm(list = ls()[!ls() %in% c("IPV", "cv", "renta_edad","renta_nacionalidad", "vivienda_edad" )])
+
+file.remove("2004,2005,2006,2007,2008.csv", "2009,2010,2011,2012,2013.csv", "2014,2015,2016,2017,2018.csv", "2019,2020,2021,2022,2023.csv", "compraventa.csv", "data.csv", "datos.xls", "./docs/datos/25171.px", "./docs/datos/34010110.XLS")
+

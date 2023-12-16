@@ -69,23 +69,23 @@ export(df, "./datos_pulidos/PIB_pc.csv", type = "csv")
 
 #----
 #----
-#IMPORTAR DATOS FRED / MALOS, RENTA----
-df_FRED <- import("https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23e1e9f0&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=off&txtcolor=%23444444&ts=12&tts=12&width=718&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=PCAGDPESA646NWDB,NYGDPPCAPKDUSA&scale=left,left&cosd=1960-01-01,1960-01-01&coed=2022-01-01,2022-01-01&line_color=%234572a7,%23aa4643&link_values=false,false&line_style=solid,solid&mark_type=none,none&mw=3,3&lw=2,2&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Annual,Annual&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=lin,lin&vintage_date=2023-12-14,2023-12-14&revision_date=2023-12-14,2023-12-14&nd=1960-01-01,1960-01-01")
+#IMPORTAR DATOS FRED / MALOS, BORRAR AL TERMINAR TODO----
+#df_FRED <- import("https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23e1e9f0&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=off&txtcolor=%23444444&ts=12&tts=12&width=718&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=PCAGDPESA646NWDB,NYGDPPCAPKDUSA&scale=left,left&cosd=1960-01-01,1960-01-01&coed=2022-01-01,2022-01-01&line_color=%234572a7,%23aa4643&link_values=false,false&line_style=solid,solid&mark_type=none,none&mw=3,3&lw=2,2&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Annual,Annual&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=lin,lin&vintage_date=2023-12-14,2023-12-14&revision_date=2023-12-14,2023-12-14&nd=1960-01-01,1960-01-01")
 
 
-df_long <- gather(df_FRED, key = "Country", value = "PIB_pc", -DATE) |> 
-  rename(year = DATE)
+#df_long <- gather(df_FRED, key = "Country", value = "PIB_pc", -DATE) |> 
+  # rename(year = DATE)
 
 #ARREGLAR EL FORMATO DE YEAR
 
-df_long$year <- substr(df_long$year, 1, 4)
+#df_long$year <- substr(df_long$year, 1, 4)
 
 #Arreglamos los nombres de los paises
 
-df_done <- df_long |> 
-  mutate(Country = str_replace(Country, "PCAGDPESA646NWDB", "España")) |> 
-  mutate(Country = str_replace(Country, "NYGDPPCAPKDUSA", "Estados_Unidos")) |> 
-  mutate(year =  as.numeric(year))
+#df_done <- df_long |> 
+#  mutate(Country = str_replace(Country, "PCAGDPESA646NWDB", "España")) |> 
+# mutate(Country = str_replace(Country, "NYGDPPCAPKDUSA", "Estados_Unidos")) |> 
+# mutate(year =  as.numeric(year))
   
 
 
@@ -110,7 +110,13 @@ df_ine_01 <- df_ine |>
   rename(jornada = 'Tipo de jornada') |> 
   rename(formacion = 'NIVELES DE FORMACION') |>
   rename(salario = Total)
-    
+ 
+#VAMOS A CONVERTIR LA VARIABLE salario A NUMERIC
+
+#R y el INE me han jodiedo la vida para pasar esto a numeric (antes no funcionaba)
+df_ine_01 <- df_ine_01 |> 
+  mutate(salario = as.numeric(gsub(",", ".", gsub("\\.", "", salario))))
+
 export(df_ine_01,"./datos_pulidos/salario_formacion.csv", type = "csv")
 
 #
@@ -129,7 +135,11 @@ df_ine_02 <- df_ine_x1 |>
   rename(jornada = 'Tipo de jornada') |> 
   rename(grupo_edad = 'Grupo de edad') |>
   rename(salario = Total)
-  
+
+#PASAMOS A NUMERIC
+df_ine_02 <- df_ine_02 |> 
+  mutate(salario = as.numeric(gsub(",", ".", gsub("\\.", "", salario))))
+
 export(df_ine_02,"./datos_pulidos/salario_grupo_edad.csv", type = "csv")
 
 #
@@ -146,19 +156,25 @@ df_ipc_01 <- df_ipc |>
   select("Periodo", "Grupos ECOICOP", "Tipo de dato", "Total") |> 
   rename(year = Periodo) |>
   rename(grupo = 'Grupos ECOICOP') |> 
-  rename(tipo_dato = `Tipo de dato` )
+  rename(tipo_dato = `Tipo de dato` ) 
+
+#PASAMOS A NUMERIC
+df_ipc_01 <- df_ipc_01 |> 
+  mutate(Total = as.numeric(gsub(",", ".", gsub("\\.", "", Total))))
+
+  
 
 #PARA SEPARAR EN LA VARIABLE YEAR LOS DATOS POR AÑOS Y MESES
-df_sep <- df_ipc_01 |> 
-  separate(col = year, into = c("year", "month"), sep = "M")
+#df_sep <- df_ipc_01 |> 
+#  separate(col = year, into = c("year", "month"), sep = "M")
 
-df_sep <- df_sep |> 
-  mutate(month = paste0("M", month))
+#df_sep <- df_sep |> 
+#  mutate(month = paste0("M", month))
 
-export(df_sep, "./datos_pulidos/IPC_mas_vivienda.csv", type = "csv")
+export(df_ipc_01, "./datos_pulidos/IPC_mas_vivienda.csv", type = "csv")
 #----
 #----
-#EMPEZAMOS CON LAS PRUEBAS DE GRÁFICAS -- EUROSTAT-----
+#EMPEZAMOS CON LAS PRUEBAS DE GRÁFICOS -- EUROSTAT-----
 library(tidyverse)
 library(ggplot2)
 
@@ -184,3 +200,22 @@ p_spain <- ggplot(df_spain, aes(x = year, y = PIB_pc, color = country)) +
   geom_point()
 p_spain
 
+
+#MÁS PRUEBAS DE GRÁFICOS - IPC----
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(rio)
+
+df_wage_f <- import("./datos_pulidos/salario_formacion.csv")
+
+df_01 <- df_wage_f |> 
+  filter((jornada == "Total") & (formacion == "Total")) |> 
+  select(year, salario)
+  
+  
+p1 <- ggplot(df_01, aes(x = year, y = salario))+
+  geom_line()+
+  geom_point()
+
+p1
